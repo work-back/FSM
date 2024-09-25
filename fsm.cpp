@@ -1,18 +1,11 @@
-/*
-* Copyright (c) 2020 WAYCLOUDS, Inc.2019 - langyj, langyanjun@wayclouds.com
-* All Rights Reserved.
-* WAYCLOUDS Confidential and Proprietary.
-*
-*/
-
 #include <stdio.h>
 #include <pthread.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <sys/prctl.h>
-#include <sys/eventfd.h>
+//#include <sys/prctl.h>
+//#include <sys/eventfd.h>
 #include <inttypes.h>
 
 #include <stdarg.h>
