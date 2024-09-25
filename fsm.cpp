@@ -15,6 +15,8 @@
 #include <sys/eventfd.h>
 #include <inttypes.h>
 
+#include <stdarg.h>
+
 //#include <wmi_sys.h>
 //#include <wmi.h>
 #include "fsm.h"
@@ -22,17 +24,20 @@
 #define WMI_FSM_LOCK(fsm) pthread_mutex_lock(&((fsm)->mutex))
 #define WMI_FSM_UNLOCK(fsm) pthread_mutex_unlock(&((fsm)->mutex))
 
-#define __WMI_FSM_LOG(fsm, p, fmt, ...)                                                                      \
-do {                                                                                                         \
-    if (fsm && fsm->debug_print) {                                                                           \
-        fsm->debug_print(fsm, "[%s][%d]<%s>:"fmt, __func__, __LINE__, fsm->name, ##__VA_ARGS__);             \
-    } else {                                                                                                 \
-        printf("[%s][%d]<%s>:"fmt"\n", __func__, __LINE__, fsm->name, ##__VA_ARGS__);                            \
-    }                                                                                                        \
-} while (0)
+#define __WMI_FSM_LOG(fmt, ...)
 
-#define WMI_FSM_LOG(fsm, fmt, ...)  __WMI_FSM_LOG(fsm, WMI_LOG_DEBUG, fmt, ##__VA_ARGS__)
-#define WMI_FSM_DUMP(fsm, fmt, ...) __WMI_FSM_LOG(fsm, WMI_LOG_DUMP, fmt, ##__VA_ARGS__)
+#include <iostream>
+
+void WMI_FSM_LOG(wmi_fsm *fsm, const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+
+//    std::cout << "[" << function << "][" << line << "]";
+    vprintf(fmt, args);
+    std::cout << std::endl;
+
+    va_end(args);
+}
 
 void WMI_fsm_state_time_out_set(wmi_fsm *fsm, int state, WMI_TIME_MS new_out_ms)
 {
@@ -94,11 +99,11 @@ void WMI_fsm_time_out_check(wmi_fsm *fsm)
 
     now_ms = WMI_sys_get_boot_time_ms();
     if (!now_ms) {
-        WMI_ERR("get boot time ms error");
+        WMI_FSM_LOG(fsm, "get boot time ms error");
         goto exit;
     }
 
-    WMI_FSM_DUMP(fsm, "current state %s, TIME OUT (%"PRIu64 ") < (%"PRIu64 ")", state_info[fsm->cur_state].name,
+    WMI_FSM_LOG(fsm, "current state %s, TIME OUT (%"PRIu64 ") < (%"PRIu64 ")", state_info[fsm->cur_state].name,
             state_info_cur->time_start_ms + state_info_cur->out_ms, now_ms);
     if (state_info_cur->time_start_ms + state_info_cur->out_ms < now_ms) {
         WMI_FSM_LOG(fsm, "current state %s, TIME OUT (%"PRIu64 ") + (%"PRIu64 ") < (%"PRIu64 ")", state_info[fsm->cur_state].name,
@@ -114,7 +119,7 @@ exit:
 void WMI_fsm_dispatch_event(wmi_fsm *fsm, int event, int event_data_len, void *event_data)
 {
     const char *event_name = NULL;
-    const char *cur_state_name = NULL;
+    char* cur_state_name;
     wmi_fsm_state_info *state_info = fsm->state_info;
 
     cur_state_name = state_info[fsm->cur_state].name;
@@ -198,17 +203,17 @@ wmi_fsm *WMI_fsm_create(const char *name,
     wmi_fsm_state_info *state_info_dup = NULL;
     int state_info_dup_size = 0;
 
-    wmi_fsm *fsm = malloc(sizeof(wmi_fsm));
+    wmi_fsm *fsm = (wmi_fsm *)malloc(sizeof(wmi_fsm));
     if (!fsm) {
-        WMI_ERR("oom");
+        WMI_FSM_LOG(fsm, "oom");
         return NULL;
     }
     memset(fsm, 0, sizeof(wmi_fsm));
 
     state_info_dup_size = sizeof(wmi_fsm_state_info) * num_states;
-    state_info_dup = malloc(state_info_dup_size);
+    state_info_dup = (wmi_fsm_state_info *)malloc(state_info_dup_size);
     if (!state_info_dup) {
-        WMI_ERR("oom");
+        WMI_FSM_LOG(fsm, "oom");
         goto error;
     }
     memcpy(state_info_dup, state_info, state_info_dup_size);

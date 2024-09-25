@@ -5,6 +5,9 @@
 
 //#include <wmi_def.h>
 #include <stdint.h>
+
+#include <iostream>
+
 typedef uint64_t WMI_TIME_MS;
 #define WMI_LEN_64    (64)
 
@@ -14,12 +17,12 @@ typedef uint64_t WMI_TIME_MS;
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
 
-#define WMI_LOG(fmt, ...) \
-    printf("[%s][%d]"fmt"\n", __func__, __LINE__, ##__VA_ARGS__);
-#define WMI_ERR(fmt, ...) \
-    printf("[%s][%d]"fmt"\n", __func__, __LINE__, ##__VA_ARGS__);
-#define WMI_WARN(fmt, ...) \
-    printf("\033[1;33m"fmt"\033[0m\n", ##__VA_ARGS__);
+//#define WMI_LOG(fmt, ...) \
+//    printf("[%s][%d]"fmt"\n", __func__, __LINE__, ##__VA_ARGS__);
+//#define WMI_ERR(fmt, ...) \
+//    printf("[%s][%d]"fmt"\n", __func__, __LINE__, ##__VA_ARGS__);
+//#define WMI_WARN(fmt, ...) \
+//    printf("\033[1;33m"fmt"\033[0m\n", ##__VA_ARGS__);
 
 WMI_TIME_MS WMI_sys_get_boot_time_ms(void);
 
@@ -31,8 +34,8 @@ typedef void (*wmi_fsm_time_out_cb_t)(void *fsm);
 
 typedef struct wmi_fsm_state_info_tag
 {
-    int state;
     char *name;
+    int state;
     wmi_fsm_entry_cb_t entry;
     wmi_fsm_exit_cb_t  exit;
     wmi_fsm_event_cb_t event;

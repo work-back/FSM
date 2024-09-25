@@ -42,7 +42,6 @@ const char *g_awmd_fsm_event_name[AWMD_FSM_EVENT_MAX] = {
 
 void awmd_fsm_entry_def(void *fsm)
 {
-    WMI_LOG("entry");
     return;
 }
 
@@ -60,7 +59,7 @@ void awmd_fsm_idel_event(void *fsm, int event, int event_data_len, void *event_d
 {
     switch (event) {
         case AWMD_FSM_EVENT_NET_UP:
-            WMI_fsm_transition_to(fsm, AWMD_FSM_STATE_NET_UP);
+            WMI_fsm_transition_to((wmi_fsm *)fsm, AWMD_FSM_STATE_NET_UP);
             break;
     }
 
@@ -94,7 +93,7 @@ void awmd_fsm_mqtt_up_event(void *fsm, int event, int event_data_len, void *even
 
 static wmi_fsm_state_info g_awmd_fsm_state_infos[] = {
     {
-        .name  = "INIT",
+        .name  = (char*)"INIT",
         .state = AWMD_FSM_STATE_INIT,
         .entry = awmd_fsm_entry_def,
         .exit  = awmd_fsm_exit_def,
@@ -102,7 +101,7 @@ static wmi_fsm_state_info g_awmd_fsm_state_infos[] = {
         //.time_out = awmd_fsm_idle_time_out,
         //.out_ms = AWMD_FSM_IDEL_TIME_OUT_MS,
     }, {
-        .name = "NET_UP",
+        .name = (char*)"NET_UP",
         .state = AWMD_FSM_STATE_NET_UP,
         .entry = awmd_fsm_net_up_entry,
         .exit  = awmd_fsm_exit_def,
@@ -110,7 +109,7 @@ static wmi_fsm_state_info g_awmd_fsm_state_infos[] = {
         //.time_out = awmd_fsm_net_up_time_out,
         //.out_ms = AWMD_FSM_NET_UP_TIME_OUT_MS,
     }, {
-        .name = "MQTT_UP(AC_RUNNING)",
+        .name = (char*)"MQTT_UP(AC_RUNNING)",
         .state = AWMD_FSM_STATE_MQTT_UP,
         .entry = awmd_fsm_mqtt_up_entry,
         .exit  = awmd_fsm_mqtt_up_exit,
@@ -120,7 +119,7 @@ static wmi_fsm_state_info g_awmd_fsm_state_infos[] = {
 
 wmi_fsm *g_fsm;
 
-int main(void)
+int run_fsm(void)
 {
     int ctx = 100;
 
